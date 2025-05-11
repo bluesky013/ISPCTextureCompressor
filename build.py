@@ -53,15 +53,7 @@ def build_vs_project(project_path, configuration="Release", platform="x64"):
     else:
         print("Failed")
         print(result.stderr)
-    # copy
-    dst_dir = os.path.join(current_path, "build", "install", "bin")
-    os.makedirs(dst_dir, exist_ok=True)
-    
-    copy_src = os.path.join(current_path, "ispc_texcomp", platform, configuration, "ispc_texcomp.dll")
-    copy_dst = os.path.join(dst_dir, "ispc_texcomp.dll")
-    
-    print(copy_src, copy_dst)
-    shutil.copy(copy_src, copy_dst)
+
     return result.returncode
 
 def build_xcode_project(project_path, configuration="Release", destination="generic/platform=iOS"):
@@ -99,6 +91,12 @@ proj_path_map = {
     'MacOS-arm': 'ispc_texcomp.xcodeproj',
 }
 
+output_dyn_lib_map = {
+    'Win32': 'ispc_texcomp.dll',
+    'MacOS-x86': 'libispc_texcomp.dylib',
+    'MacOS-arm': 'libispc_texcomp.dylib',
+}
+
 def copy_header():
     src_dir = os.path.join(current_path, "ispc_texcomp")
     dst_dir = os.path.join(current_path, "build", "install", "include", "ispc_texcomp")
@@ -117,7 +115,7 @@ def app_main():
     zip_path = f"ispc-{version}-{args.platform}{zip_suffix[args.platform]}"
     
     src = os.path.join(current_path, zip_path)
-    dst = os.path.join(current_path, "build", "install", "bin")
+    dst = os.path.join(current_path, "build")
     
     if zip_path.endswith('.tar.gz'):
         import tarfile
@@ -130,7 +128,6 @@ def app_main():
         
         with zipfile.ZipFile(src, 'r') as zip_ref:
             zip_ref.extractall(dst)
-    
     # proj_path = proj_path_map[args.platform]
     # proj_fun = proj_fun_map[args.platform]
     #
